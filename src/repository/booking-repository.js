@@ -18,6 +18,23 @@ class BookingRepository{
             );
         }
     }
+    async update(bookingId, data){
+        try {
+            const booking = await Booking.findByPk(bookingId);
+            if(data.status){
+                booking.status = data.status;
+            }
+            await booking.save();
+            return booking;
+        } catch (error) {
+            throw new AppError(
+                'RepositoryError',
+                'Something went wrong in the repository layer',
+                'An unexpected error occurred',
+                500
+            );
+        }
+    }
 }
 
 module.exports = BookingRepository;
