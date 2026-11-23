@@ -21,6 +21,14 @@ class BookingRepository{
     async update(bookingId, data){
         try {
             const booking = await Booking.findByPk(bookingId);
+            if(!booking){
+                throw new AppError(
+                    'RepositoryError',
+                    'Booking not found',
+                    'No booking exists with the given id',
+                    404
+                );
+            }
             if(data.status){
                 booking.status = data.status;
             }
