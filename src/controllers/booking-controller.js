@@ -7,9 +7,9 @@ const {StatusCodes} = require('http-status-codes');
 const create=async (req,res) => {
     try {
         const response = await bookingService.createBooking(req.body);
-        res.status(StatusCodes.OK).json(response);
+        res.status(StatusCodes.CREATED).json(response);
     } catch (error) {
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
+        res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({ error: error.message });
     }
 }
 
