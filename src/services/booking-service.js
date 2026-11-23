@@ -8,6 +8,14 @@ class BookingService{
     }
     async createBooking(data){
        try {
+        if (!data.flightId || !data.userId) {
+            throw new ServiceError(
+                'flightId and userId are required',
+                'Booking cannot be created without flightId and userId',
+                400
+            );
+        }
+        const numberOfSeats = data.numberOfSeats ?? 1;
         const flightId = data.flightId;
         const getFlightURL = `${flightServiceURL}/api/v1/flights/${flightId}`;
         const response = await axios.get(getFlightURL);
@@ -21,7 +29,7 @@ class BookingService{
             );
         }
 
-        if (data.numberOfSeats > flightData.totalSeats) {
+        if (numberOfSeats > flightData.totalSeats) {
             throw new ServiceError(
                 'Not enough seats available',
                 `Only ${flightData.totalSeats} seats are available`,
@@ -29,8 +37,8 @@ class BookingService{
             );
         }
 
-        const totalCost = flightData.price * data.numberOfSeats;
-        const remainingSeats = flightData.totalSeats - data.numberOfSeats;
+        const totalCost = flightData.price * numberOfSeats;
+        const remainingSeats = flightData.totalSeats - numberOfSeats;
         const updateFlightURL = `${flightServiceURL}/api/v1/flights/${flightId}`;
         await axios.patch(updateFlightURL, {
             totalSeats: remainingSeats
@@ -38,6 +46,7 @@ class BookingService{
 
         const bookingPayload = {
             ...data,
+            numberOfSeats,
             totalCost
         };
         const booking = await this.bookingRepository.create(bookingPayload);
